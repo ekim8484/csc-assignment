@@ -1,4 +1,4 @@
-package com.example.csc325_firebase_webview_auth.modelview;//package modelview;
+package com.example.csc325_firebase_webview_auth.modelview;
 
 import com.example.csc325_firebase_webview_auth.App;
 import com.example.csc325_firebase_webview_auth.models.Person;
@@ -25,38 +25,179 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 
-public class AccessFBView {
-
-
-     @FXML
+public class AccessFBView
+{
+    @FXML
     private TextField nameField;
     @FXML
     private TextField majorField;
     @FXML
     private TextField ageField;
     @FXML
+    private TextField usernameField;
+    @FXML
+    private TextField passwordField;
+    @FXML
+    private TextField confirmField;
+    @FXML
     private Button writeButton;
     @FXML
     private Button readButton;
     @FXML
     private TextArea outputField;
-     private boolean key;
+    @FXML
+    private Text label;
+    @FXML
+    private MenuItem menuItem;
+    private boolean bool;
+    private Scene scene;
+    private boolean key;
     private ObservableList<Person> listOfUsers = FXCollections.observableArrayList();
     private Person person;
+
+    public AccessFBView() {
+    }
+
     public ObservableList<Person> getListOfUsers() {
         return listOfUsers;
     }
 
-    void initialize() {
-
+    void initialize()
+    {
         AccessDataViewModel accessDataViewModel = new AccessDataViewModel();
         nameField.textProperty().bindBidirectional(accessDataViewModel.userNameProperty());
         majorField.textProperty().bindBidirectional(accessDataViewModel.userMajorProperty());
         writeButton.disableProperty().bind(accessDataViewModel.isWritePossibleProperty().not());
+        List<TextField> textFieldList = List.of(usernameField, passwordField, confirmField, nameField, majorField,ageField);
+        readButton.setDisable(true);
+        textFieldList.forEach(textField ->
+        {
+            textField.setOnKeyPressed(event ->
+            {
+                if (event.getCode() != KeyCode.TAB && bool)
+                {
+                    textField.setStyle("-fx-border-color: #12c812 ; -fx-border-width: 1px ;");
+                    bool = false;
+                }
+            });
+            textField.setOnMouseClicked(mouseEvent ->
+            {
+                textField.requestFocus();
+            });
+        });
+        nameField.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            label.setText("Please enter your full name.");
+            if (nameField.getText().matches("[A-Za-z]{2,12}[\\s][A-Za-z]{2,13}"))
+            {
+                label.setText("Please enter your major.");
+                nameField.setBorder(null);
+                majorField.setEditable(true);
+            }
+            else
+            {
+                label.setText("This name is invalid.");
+                majorField.setEditable(false);
+                ageField.setEditable(false);
+                passwordField.setEditable(false);
+                confirmField.setEditable(false);
+                bool = true;
+            }
+        });
+        majorField.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            label.setText("Please enter your major.");
+            if (majorField.getText().toUpperCase().matches("[A-Z]{3}"))
+            {
+                label.setText("Please enter your age.");
+                majorField.setBorder(null);
+                ageField.setEditable(true);
+            }
+            else
+            {
+                label.setText("This major is invalid.");
+                ageField.setEditable(false);
+                passwordField.setEditable(false);
+                confirmField.setEditable(false);
+                majorField.requestFocus();
+                bool = true;
+            }
+        });
+        ageField.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            label.setText("Please enter your age.");
+            if (ageField.getText().matches("(1[3-9]||[2-9][0-9])$"))
+            {
+                label.setText("Please enter your password.");
+                ageField.setBorder(null);
+                passwordField.setEditable(true);
+                confirmField.setEditable(true);
+
+            }
+            else
+            {
+                label.setText("This age is invalid.");
+                passwordField.setEditable(false);
+                confirmField.setEditable(false);
+                majorField.requestFocus();
+                bool = true;
+            }
+        });
+        usernameField.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+        label.setText("Please enter your username.");
+        if (usernameField.getText().matches("[a-zA-Z0-9]{2,16}")) {
+            usernameField.setBorder(null);
+            label.setText("Please enter your full name.");
+            nameField.setEditable(true);
+        }
+        else
+        {
+            label.setText("This username is invalid.");
+            nameField.setEditable(false);
+            majorField.setEditable(false);
+            ageField.setEditable(false);
+            passwordField.setEditable(false);
+            confirmField.setEditable(false);
+            usernameField.requestFocus();
+            bool = true;
+        }
+        });
+        passwordField.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            label.setText("Please enter your password.");
+            if (passwordField.getText().matches("[a-zA-Z0-9]{8,16}"))
+            {
+                passwordField.setBorder(null);
+            }
+            else
+            {
+                label.setText("This password is invalid.");
+                passwordField.requestFocus();
+                bool = true;
+            }
+        });
+        confirmField.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            label.setText("Please enter your password again.");
+            if (confirmField.getText().equals(passwordField.getText())) {
+                confirmField.setBorder(null);
+                readButton.setDisable(false);
+            }
+            else
+            {
+                label.setText("The passwords must match.");
+                confirmField.requestFocus();
+                readButton.setDisable(false);
+                bool = true;
+            }
+        });
     }
 
     @FXML

@@ -18,6 +18,7 @@ public class App extends Application {
     public static Firestore fstore;
     public static FirebaseAuth fauth;
     public static Scene scene;
+    public static Stage stage;
     private final FirestoreContext contxtFirebase = new FirestoreContext();
 
     @Override
@@ -33,9 +34,30 @@ public class App extends Application {
         scene.setRoot(loadFXML(fxml));
     }
 
-    private static Parent loadFXML(String fxml) throws IOException {
+    public static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml ));
         return fxmlLoader.load();
+    }
+
+    public static Stage getStage()
+    {
+        return stage;
+    }
+
+    public static void setScene(Scene scene)
+    {
+        App.scene = scene;
+    }
+
+    public static Scene getScene()
+    {
+        return scene;
+    }
+
+    public static void setStage()
+    {
+        stage.setScene(App.getScene());
+        stage.show();
     }
 
     public static void main(String[] args) {
